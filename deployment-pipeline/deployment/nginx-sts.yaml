@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx-statefulset
+  labels:
+    app: nginx
+spec:
+  serviceName: nginx-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: vamshikrishna2129/nginx-custom-image:nginx-v1.19
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: nginx-storage
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: nginx-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: ClusterIP

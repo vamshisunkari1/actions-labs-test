@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = "vamshikrishna2129/nginx-custom-image" 
+        DOCKER_CREDENTIALS = "docker-hub-credentials-id"
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                echo "Cloning repository..."
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image..."
+                script {
+                    sh "docker build -t ${DOCKER_REGISTRY}:${env.BUILD_ID} ."
+                }
+            }
+        }
+        
+        stage('Run Security Scan with Trivy') {
+            steps {
+                echo "Running security scan with Trivy..."
+                script {
+                    def scanResults = sh(script: "trivy image --severity HIGH,CRITICAL ${DOCKER_REGISTRY}:${env.BUILD_ID}", returnStatus: true)
+                    if (scanResults != 0) {
+                        error "High or Critical vulnerabilities found in the image. Failing the pipeline."
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                echo "Pushing Docker image to Docker Hub..."
+                script {
+                    withDockerRegistry([credentialsId: DOCKER_CREDENTIALS, url: ""]) {
+                        sh "docker push ${DOCKER_REGISTRY}:${env.BUILD_ID}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Deploying to Kubernetes..."
+                script {
+                    
+                    sh "sed -i 's|image: .*|image: ${DOCKER_REGISTRY}:${env.BUILD_ID}|' deployment/nginx-sts.yml"
+                    
+                    sh "kubectl apply -f deployment/nginx-sts.yml"
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            echo "Pipeline failed. Please check the logs."
+        }
+        success {
+            echo "Pipeline completed successfully."
+        }
+    }
+}

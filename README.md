@@ -7,10 +7,20 @@ used this site to download nginx packages
 
 Ref[https://nginx.org/en/linux_packages.html#Ubuntu]
 
-Note:                        
-  Added default.conf .because after building i tested container , no logs are showed , so i added that file to replace default one
+`Note:`                        
+  Added `default.conf` because after building i tested container , no logs are showed , so i added that file to replace default one
 
 **Security test**
 
-Used trivy tool to test the image
+Used trivy tool to test the image, the result of securty test image will be available inside `images` folder
+
+
+# Kubernetes StatefulSet:
+
+Inside `k8s-sts` folder you will get manifest file and also tested this in minikube cluster
+
+!(./)
+
+
+
 
