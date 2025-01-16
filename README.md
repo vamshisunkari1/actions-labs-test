@@ -40,7 +40,7 @@ you will get script and problem statement inside `manipulation-problem`
 
 # Text Manipulation with an Object Orientated Programming Language
 
-Here i am using python to manipulate nginx logs , you will get python file inside folder `oo-programming-lg`
+Here i am using python to manipulate nginx logs , you will get python file inside folder `oo-lg-manipulation`
 
 ![](./images/oo-lg-python.png)
 
