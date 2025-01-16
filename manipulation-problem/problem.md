@@ -16,6 +16,9 @@ By solving this problem, we can gain a deeper understanding of server usage patt
 docker logs custome-nginx > nginx.log
 ```
 
+```
+./script.sh nginx.log
+```
 
 I used a script to generate report
 
