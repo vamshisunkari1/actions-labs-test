@@ -48,14 +48,20 @@ pipeline {
             steps {
                 echo "Deploying to Kubernetes..."
                 script {
-                    
-                    sh "sed -i 's|image: .*|image: ${DOCKER_REGISTRY}:${env.BUILD_ID}|' deployment/nginx-sts.yml"
-                    
-                    sh "kubectl apply -f deployment/nginx-sts.yml"
+                    withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
+                       
+                        sh """
+                        sed -i 's|image: .*|image: ${DOCKER_REGISTRY}:${env.BUILD_ID}|' deployment/nginx-sts.yml
+                        """
+
+                        sh "kubectl apply -f deployment/nginx-sts.yml"
+                    }
                 }
             }
         }
-    }
+
+
+    } // stages
     post {
         failure {
             echo "Pipeline failed. Please check the logs."
